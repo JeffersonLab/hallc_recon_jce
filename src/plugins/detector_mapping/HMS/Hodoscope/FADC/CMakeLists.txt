@@ -1,5 +1,5 @@
 add_library(hms_hodoscope_fadc_translator STATIC
-    FADCTranslator.cc
+    HMSHodFADCTranslator.cc
 )
 
 target_include_directories(hms_hodoscope_fadc_translator
@@ -22,7 +22,7 @@ set(HMS_HODOSCOPE_FADC_TRANSLATOR_INCLUDE_DIRS
 )
 
 set(HMS_HODOSCOPE_FADC_TRANSLATOR_PUBLIC_HEADERS
-    ${CMAKE_CURRENT_SOURCE_DIR}/data_objects/FADCPulseDigiHit.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/data_objects/FADCWaveformDigiHit.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/data_objects/HMSHodoscopeFADCPulseDigiHit.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/data_objects/HMSHodoscopeFADCWaveformDigiHit.h
     PARENT_SCOPE
 )

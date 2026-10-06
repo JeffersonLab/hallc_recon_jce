@@ -2,7 +2,7 @@
 
 #include "FADC250PulseHit.h"
 #include "FADC250WaveformHit.h"
-#include "FADCTranslator.h"
+#include "HMSHodFADCTranslator.h"
 #include "JEventService_DetectorTranslatorsMap.h"
 
 void InitHMSHodoscopeTranslators(

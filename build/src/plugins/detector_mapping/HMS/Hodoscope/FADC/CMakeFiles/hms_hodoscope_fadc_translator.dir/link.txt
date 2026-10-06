@@ -1,0 +1,2 @@
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ar qc libhms_hodoscope_fadc_translator.a CMakeFiles/hms_hodoscope_fadc_translator.dir/HMSHodFADCTranslator.cc.o
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ranlib libhms_hodoscope_fadc_translator.a

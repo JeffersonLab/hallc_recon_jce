@@ -5,7 +5,7 @@
 struct HMSHodoscopeFADCPulseDigiHit {
     std::int32_t plane;
     std::int32_t bar;
-    std::int32_t signal;
+    std::int32_t signal;  // 0 -- Pos; 1 -- Neg;
 
     std::uint32_t rocid;
     std::uint32_t slot;

@@ -3,8 +3,8 @@
 #include "DetectorAddress.h"
 #include "FADC250PulseHit.h"
 #include "FADC250WaveformHit.h"
-#include "FADCPulseDigiHit.h"
-#include "FADCWaveformDigiHit.h"
+#include "HMSHodoscopeFADCPulseDigiHit.h"
+#include "HMSHodoscopeFADCWaveformDigiHit.h"
 
 class JEvent;
 

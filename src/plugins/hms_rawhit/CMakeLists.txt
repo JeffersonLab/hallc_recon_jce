@@ -1,7 +1,7 @@
 add_jana_plugin(hms_rawhit
     SOURCES
         InitPlugin.cc
-        JEventProcessor_hmsrawhit.cc
+        JEventProcessor_HMSRawHit.cc
 )
 
 target_link_libraries(hms_rawhit
@@ -11,6 +11,5 @@ target_link_libraries(hms_rawhit
         ROOT::RIO
         ROOT::Tree
         ROOT::Hist
-        jana2_common_extensions::evio_parser_data_types  # data-object headers (FADC, TIScaler, MPD, VFTDC, ...)
-
+        hallc_detector_data_types
 )
