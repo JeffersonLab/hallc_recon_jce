@@ -6,7 +6,7 @@ target_include_directories(hms_hodoscope_identity
     PRIVATE ${JANA_INCLUDE_DIRS}
 )
 target_link_libraries(hms_hodoscope_identity
-    PUBLIC detector_mapping
+    PUBLIC jana2_common_extensions::detector_mapping
     PRIVATE ${JANA_LIBRARY}
 )
 

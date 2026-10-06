@@ -4,9 +4,7 @@
 
 #include <TFile.h>
 #include <TTree.h>
-#include <TH1.h>
-
-#include <fstream>
+#include <cstdint>
 #include <string>
 #include <vector>
 
@@ -14,29 +12,13 @@
 #include "HMSHodoscopeFADCPulseDigiHit.h"
 #include "HMSHodoscopeFADCWaveformDigiHit.h"
 
-/**
- * @struct HMShodoscope
- * @brief Data structure representing one hodoscope bar
- * 
- * Contains the hit information for one channel to be stored in ROOT Tree:
- * - counter: HMS Hodoscope bar number
- * - ped: pedestal
- * - ped_quality: pedestal quality
- * - waveform: ADC samples for a waveform
- * - nhits: number of pulses
- * - integral_sum: integral sum of one pulse
- * - integral_quality: integral sum quality of one pulse
- * - integral_nsample: number of samples included in the integral sum of one pulse
- * - coarse_time: the coarse time of one pulse
- * - fine_time: the fine time of one pulse
- * - time_quality: time quality of one pulse
- */
-
-struct HodADCRawHit{
-    uint32_t nhits;
-    std::vector<uint32_t> counter; 
-    std::vector<uint32_t> ped; 
+struct HodADCBranches {
+    // One element per bar in this plane and signal end.
+    std::vector<uint32_t> counter;
+    std::vector<uint32_t> ped;
     std::vector<uint32_t> ped_quality;
+    std::vector<uint32_t> nhits;
+
     std::vector<uint32_t> waveform;
     std::vector<uint32_t> integral_sum;
     std::vector<uint32_t> integral_quality;
@@ -45,7 +27,23 @@ struct HodADCRawHit{
     std::vector<uint32_t> fine_time;
     std::vector<uint32_t> time_quality;
     std::vector<uint32_t> pulse_peak;
-}
+
+    void clear() {
+        counter.clear();
+        ped.clear();
+        ped_quality.clear();
+        nhits.clear();
+        waveform.clear();
+        integral_sum.clear();
+        integral_quality.clear();
+        integral_nsample.clear();
+        coarse_time.clear();
+        fine_time.clear();
+        time_quality.clear();
+        pulse_peak.clear();
+    }
+};
+
 
 /**
  * @class JEventProcessor_HMSRawHit
@@ -74,29 +72,14 @@ private:
     Parameter<std::string> m_root_output_filename {this, "ROOT_OUT_FILENAME", "HMS_rawhits.root", "Output file name for ROOT data", true};
 
     // ROOT Tree variables 
-    struct HodADCBranches {
-        std::vector<uint32_t> counter;
-        std::vector<uint32_t> ped;
-        std::vector<uint32_t> ped_quality;
-        std::vector<uint32_t> nhits;
-    
-        std::vector<std::vector<uint32_t>> waveform;
-        std::vector<std::vector<uint32_t>> integral_sum;
-        std::vector<std::vector<uint32_t>> integral_quality;
-        std::vector<std::vector<uint32_t>> integral_nsample;
-        std::vector<std::vector<uint32_t>> coarse_time;
-        std::vector<std::vector<uint32_t>> fine_time;
-        std::vector<std::vector<uint32_t>> time_quality;
-    };
-
     HodADCBranches HMSHodADCPos1x, HMSHodADCNeg1x;
     HodADCBranches HMSHodADCPos2x, HMSHodADCNeg2x;
     HodADCBranches HMSHodADCPos1y, HMSHodADCNeg1y;
     HodADCBranches HMSHodADCPos2y, HMSHodADCNeg2y;
 
     // ROOT output objects
-    TFile *m_root_output_file;                ///< ROOT file for histogram and tree storage
-    TTree *T;                            ///< ROOT tree for physics event
+    TFile *m_root_output_file = nullptr;
+    TTree *T = nullptr;
     
 public:
 

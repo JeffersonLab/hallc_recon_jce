@@ -1,4 +1,4 @@
-#include "FADCTranslator.h"
+#include "HMSHodFADCTranslator.h"
 
 #include <JANA/JEvent.h>
 

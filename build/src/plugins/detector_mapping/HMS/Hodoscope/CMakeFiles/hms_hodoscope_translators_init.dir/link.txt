@@ -1,2 +1,0 @@
-/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ar qc libhms_hodoscope_translators_init.a CMakeFiles/hms_hodoscope_translators_init.dir/InitHMSHodoscopeTranslators.cc.o
-/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ranlib libhms_hodoscope_translators_init.a

@@ -1,7 +1,21 @@
 #include "JEventProcessor_HMSRawHit.h"
+#include <JANA/JException.h>
 #include <JANA/JLogger.h>
-#include <map>
-#include <tuple>
+
+#include <array>
+#include <cstddef>
+#include <cstdint>
+#include <unordered_map>
+
+namespace {
+
+struct ChannelHits {
+    std::int32_t bar;
+    std::vector<const HMSHodoscopeFADCPulseDigiHit*> pulses;
+    const HMSHodoscopeFADCWaveformDigiHit* waveform = nullptr;
+};
+
+} // namespace
 
 void SetHodADCBranch(TTree* tree, const std::string& prefix, HodADCBranches& data) {
     tree->Branch((prefix + "Counter").c_str(),         &data.counter);
@@ -15,6 +29,7 @@ void SetHodADCBranch(TTree* tree, const std::string& prefix, HodADCBranches& dat
     tree->Branch((prefix + "CoarseTime").c_str(),      &data.coarse_time);
     tree->Branch((prefix + "FineTime").c_str(),        &data.fine_time);
     tree->Branch((prefix + "TimeQuality").c_str(),     &data.time_quality);
+    tree->Branch((prefix + "PulsePeak").c_str(),       &data.pulse_peak);
 }
 
 /**
@@ -71,53 +86,79 @@ void JEventProcessor_HMSRawHit::Init() {
  * @param event Reference to the JANA2 event to process
  */
 void JEventProcessor_HMSRawHit::ProcessSequential(const JEvent &event) {
-    
-    // Clear previous event data
-    HMSHodADCPos1x={};
-    HMSHodADCPos1y={};
-    HMSHodADCPos2x={};
-    HMSHodADCPos2y={};
+    // Route order matches the plane numbers in the detector mapping: 1x, 2x,
+    // 1y, 2y. Within each plane, signal 0 is positive and 1 is negative.
+    const std::array<HodADCBranches*, 8> branches {
+        &HMSHodADCPos1x, &HMSHodADCNeg1x,
+        &HMSHodADCPos2x, &HMSHodADCNeg2x,
+        &HMSHodADCPos1y, &HMSHodADCNeg1y,
+        &HMSHodADCPos2y, &HMSHodADCNeg2y
+    };
+    std::array<std::unordered_map<std::int32_t, std::size_t>, 8> channelIndices;
+    std::array<std::vector<ChannelHits>, 8> groupedChannels;
+    for (auto* branch : branches) {
+        branch->clear();
+    }
 
-    HMSHodADCNeg1x={};
-    HMSHodADCNeg1y={};
-    HMSHodADCNeg2x={};
-    HMSHodADCNeg2y={};
+    // Find or create one channel entry for (plane, bar, signal). Store pointers
+    // during grouping; copy measurements only once into the final ROOT buffers.
+    const auto channel = [&](std::int32_t plane, std::int32_t bar,
+                             std::int32_t signal) -> ChannelHits& {
+        if (plane < 1 || plane > 4 || bar < 1 || signal < 0 || signal > 1) {
+            throw JException(
+                "Invalid HMS hodoscope plane/bar/signal: %d/%d/%d",
+                plane, bar, signal);
+        }
+        const auto route = static_cast<std::size_t>((plane - 1) * 2 + signal);
+        auto& channels = groupedChannels[route];
+        auto [it, inserted] = channelIndices[route].try_emplace(
+            bar, channels.size());
+        if (inserted) {
+            channels.push_back(ChannelHits{bar});
+        }
+        return channels[it->second];
+    };
 
-    using Key = std::tuple<int32_t, int32_t, int32_t>; // plane, bar, signal
-    std::map<Key, HodADCRawHit> HMSHodGroup;
-    for(const auto& pulse_hit : m_fadcPulses()) {
-        auto& hit = HMSHodGroup[{pulse_hit->plane, pulse_hit->bar, pulse_hit->signal}];
-
-        hit.counter.push_back( pulse_hit->bar );
-        hit.ped.push_back( pulse_hit->pedestal_sum );
-        hit.ped_quality.push_back( pulse_hit->pedestal_quality );
-        hit.integral_sum.push_back( pulse_hit->integral_sum );
-        hit.integral_quality.push_back( pulse_hit->integral_quality );
-        hit.integral_nsample.push_back( pulse_hit->nsamples_above_threshold );
-        hit.coarse_time.push_back( pulse_hit->coarse_time );
-        hit.fine_time.push_back( pulse_hit->fine_time );
-        hit.time_quality.push_back( pulse_hit->time_quality );
-        hit.pulse_peak.push_back( pulse_hit->pulse_peak );
+    for (const auto* pulse : m_fadcPulses()) {
+        channel(pulse->plane, pulse->bar, pulse->signal).pulses.push_back(pulse);
     }
 
     for (const auto* waveform : m_fadcWaveforms()) {
-        auto& hit = HMSHodGroup[{waveform->plane, waveform->bar, waveform->signal}];
-        hit.waveform = waveform->waveform;
+        auto& hit = channel(waveform->plane, waveform->bar, waveform->signal);
+        if (hit.waveform != nullptr) {
+            throw JException(
+                "Multiple HMS hodoscope waveforms for plane/bar/signal %d/%d/%d",
+                waveform->plane, waveform->bar, waveform->signal);
+        }
+        hit.waveform = waveform;
     }
 
-    for( auto& [key, hit] : HMSHodGroup) {
-         const auto [plane, bar, signal] = key;
-         hit.nhits = static_cast<uint32_t>(hit.integral_sum.size());
-        
-         if( plane==1 && signal==0 ) HMSHodADCPos1x.push_back(std::move(hit));
-         if( plane==1 && signal==1 ) HMSHodADCNeg1x.push_back(std::move(hit));
-         if( plane==2 && signal==0 ) HMSHodADCPos2x.push_back(std::move(hit));
-         if( plane==2 && signal==1 ) HMSHodADCNeg2x.push_back(std::move(hit));
+    for (std::size_t route = 0; route < branches.size(); ++route) {
+        auto& output = *branches[route];
+        for (const auto& hit : groupedChannels[route]) {
+            output.counter.push_back(static_cast<std::uint32_t>(hit.bar));
+            output.nhits.push_back(static_cast<std::uint32_t>(hit.pulses.size()));
+            output.ped.push_back(
+                hit.pulses.empty() ? 0 : hit.pulses.front()->pedestal_sum);
+            output.ped_quality.push_back(
+                hit.pulses.empty() ? 0 : hit.pulses.front()->pedestal_quality);
 
-         if( plane==3 && signal==0 ) HMSHodADCPos1y.push_back(std::move(hit));
-         if( plane==3 && signal==1 ) HMSHodADCNeg1y.push_back(std::move(hit));
-         if( plane==4 && signal==0 ) HMSHodADCPos2y.push_back(std::move(hit));
-         if( plane==4 && signal==1 ) HMSHodADCNeg2y.push_back(std::move(hit));
+            for (const auto* pulse : hit.pulses) {
+                output.integral_sum.push_back(pulse->integral_sum);
+                output.integral_quality.push_back(pulse->integral_quality);
+                output.integral_nsample.push_back(
+                    pulse->nsamples_above_threshold);
+                output.coarse_time.push_back(pulse->coarse_time);
+                output.fine_time.push_back(pulse->fine_time);
+                output.time_quality.push_back(pulse->time_quality);
+                output.pulse_peak.push_back(pulse->pulse_peak);
+            }
+
+            if (hit.waveform != nullptr) {
+                output.waveform.insert(output.waveform.end(),
+                    hit.waveform->waveform.begin(), hit.waveform->waveform.end());
+            }
+        }
     }
 
     T->Fill();
@@ -135,7 +176,7 @@ void JEventProcessor_HMSRawHit::Finish() {
 
     // Write ROOT objects and close ROOT file
     if (m_root_output_file) {
-	m_tree->Write();
+	T->Write();
         m_root_output_file->Close();     // Close ROOT file
         delete m_root_output_file;       // Free memory
         m_root_output_file = nullptr;
