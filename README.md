@@ -5,6 +5,8 @@ cmake -B build -S . -DBUILD_TESTING=ON -DCMAKE_PREFIX_PATH="/Users/hanjie/Docume
 
 ## Running command
 
+$JCE_HOME/scripts/jce.csh ../data/rsidis_production_28268.dat.0 -PTRANSLATION:DIRECTORY=/Users/hanjie/Documents/JCE/hallc_recon/config/detector_mappings -PROOT_OUT_FILENAME="jce_rsidis_production_28268.root"
+
 `hallc_detector_mapping` registers Hall C translators. JCE's
 `detector_translation` service reads the mapping files. For Hall C, select
 `config/detector_mappings`, whose root file is `manifest.map`.
