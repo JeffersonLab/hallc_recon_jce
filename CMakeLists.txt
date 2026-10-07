@@ -15,5 +15,5 @@ find_package(jana2_common_extensions REQUIRED)
 find_package(ROOT REQUIRED COMPONENTS Core RIO Tree Hist)
 
 # Add subdirectories
-#add_subdirectory(config)
+add_subdirectory(config)
 add_subdirectory(src/plugins)
