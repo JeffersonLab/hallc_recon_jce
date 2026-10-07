@@ -14,7 +14,7 @@ install(FILES
 # TRANSLATION:DIRECTORY must point at this directory, which contains the
 # detector catalog manifest.map and its per-detector manifests and maps.
 install(
-    DIRECTORY evio_parser/detector_mappings/
-    DESTINATION ${HALLC_CONFIG_DESTINATION}/evio_parser/detector_mappings
+    DIRECTORY detector_mappings/
+    DESTINATION ${HALLC_CONFIG_DESTINATION}/detector_mappings
     FILES_MATCHING PATTERN "*.map"
 )

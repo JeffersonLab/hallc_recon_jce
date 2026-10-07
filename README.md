@@ -6,20 +6,21 @@ cmake -B build -S . -DBUILD_TESTING=ON -DCMAKE_PREFIX_PATH="/Users/hanjie/Docume
 ## Running command
 
 `hallc_detector_mapping` registers Hall C translators. JCE's
-`detector_translation` service reads the mapping files. It starts at
-`config/evio_parser/detector_mappings/manifest.map` when `JCE_CONFIG_DIR`
-points to this project's `config` directory.
+`detector_translation` service reads the mapping files. For Hall C, select
+`config/detector_mappings`, whose root file is `manifest.map`.
 
 From the repository root, `source sourceme.csh` sets `JCE_CONFIG_DIR` to the
-source `config` directory. To select only the Hall C detector maps without
-changing JCE's bank, filter, or default-plugin files, pass:
+source `config` directory for the bank, filter, and default-plugin files.
+JCE's default translation path is still
+`$JCE_CONFIG_DIR/evio_parser/detector_mappings`, so pass the Hall C path
+explicitly:
 
 ```text
--PTRANSLATION:DIRECTORY=/Users/hanjie/Documents/JCE/hallc_recon/config/evio_parser/detector_mappings
+-PTRANSLATION:DIRECTORY=/Users/hanjie/Documents/JCE/hallc_recon/config/detector_mappings
 ```
 
 `cmake --install build` installs the same maps under
-`install/config/evio_parser/detector_mappings`. Point the parameter there for
+`install/config/detector_mappings`. Point the parameter there for
 an installed run. The current HMS map is synthetic demonstration data; replace
 it with verified, run-specific Hall C channel assignments before interpreting
 physics output.

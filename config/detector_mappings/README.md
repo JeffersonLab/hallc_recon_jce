@@ -2,10 +2,12 @@
 
 This Hall C directory contains physicist-editable configuration that maps DAQ
 addresses to detector identities for specific run ranges. JCE's translation
-service reads this directory when selected with `TRANSLATION:DIRECTORY` or
-through `JCE_CONFIG_DIR`. Use this guide when
+service reads this directory when selected with `TRANSLATION:DIRECTORY`.
+`JCE_CONFIG_DIR` alone selects JCE's default
+`evio_parser/detector_mappings` subdirectory, not this Hall C directory.
+Use this guide when
 the required raw-hit and DigiHit types already exist. For C++ translator work,
-see the [detector translator guide](../../../src/plugins/detector_translation/ADDING_TRANSLATOR.md).
+see JCE's [detector translator guide](../../../jana2-common-extensions/src/plugins/detector_translation/ADDING_TRANSLATOR.md).
 
 ## Current HMS Status
 
