@@ -14,6 +14,10 @@ target_link_libraries(hallc_detector_mapping
         hms_hodoscope_translators_init
 )
 
+target_compile_definitions(hallc_detector_mapping PRIVATE
+    HALLC_RECON_CONFIG_DIR="${CMAKE_INSTALL_PREFIX}/config/${INSTALL_NAMESPACE}"
+)
+
 add_library(hallc_detector_data_types INTERFACE)
 target_link_libraries(hallc_detector_data_types INTERFACE
     jana2_common_extensions::evio_common_modules_data_types
@@ -29,4 +33,10 @@ target_include_directories(hallc_detector_data_types INTERFACE
 )
 install(TARGETS hallc_detector_data_types
     EXPORT hallc_reconTargets
+)
+
+install(
+    DIRECTORY config/detector_mappings/
+    DESTINATION config/${INSTALL_NAMESPACE}/hallc_detector_mapping/detector_mappings
+    FILES_MATCHING PATTERN "*.map"
 )

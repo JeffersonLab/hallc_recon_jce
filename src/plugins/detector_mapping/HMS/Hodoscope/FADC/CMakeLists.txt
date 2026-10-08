@@ -10,10 +10,14 @@ target_include_directories(hms_hodoscope_fadc_translator
 
 target_link_libraries(hms_hodoscope_fadc_translator
     PUBLIC
-        jana2_common_extensions::detector_mapping
+        jana2_common_extensions::detector_mapping_api
         jana2_common_extensions::evio_common_modules_data_types
         hms_hodoscope_identity
 )
+
+add_library(hms_hodoscope_fadc_dump_writers STATIC FADCDumpWriter.cc)
+target_include_directories(hms_hodoscope_fadc_dump_writers PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(hms_hodoscope_fadc_dump_writers PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/data_objects)
 
 set(HMS_HODOSCOPE_FADC_TRANSLATOR_INCLUDE_DIRS
     ${CMAKE_CURRENT_SOURCE_DIR}
@@ -24,5 +28,32 @@ set(HMS_HODOSCOPE_FADC_TRANSLATOR_INCLUDE_DIRS
 set(HMS_HODOSCOPE_FADC_TRANSLATOR_PUBLIC_HEADERS
     ${CMAKE_CURRENT_SOURCE_DIR}/data_objects/HMSHodoscopeFADCPulseDigiHit.h
     ${CMAKE_CURRENT_SOURCE_DIR}/data_objects/HMSHodoscopeFADCWaveformDigiHit.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/data_objects/FADCPulseIntegralDigiHit.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/data_objects/FADCPulseTimeDigiHit.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/data_objects/FADCPulsePeakDigiHit.h
     PARENT_SCOPE
 )
+
+if(BUILD_TESTING)
+    add_executable(hms_hodoscope_fadc_dump_writer_tests
+        tests/FADCDumpWriterTests.cc
+    )
+    target_link_libraries(hms_hodoscope_fadc_dump_writer_tests
+        PRIVATE hms_hodoscope_fadc_dump_writers hms_hodoscope_fadc_translator
+                jana2_common_extensions::detector_mapping_api
+    )
+    add_test(NAME hms_hodoscope_fadc_dump_writer_tests
+        COMMAND hms_hodoscope_fadc_dump_writer_tests
+    )
+
+    add_executable(hms_hodoscope_fadc_translator_tests
+        tests/FADCTranslatorTests.cc
+    )
+    target_link_libraries(hms_hodoscope_fadc_translator_tests
+        PRIVATE hms_hodoscope_fadc_translator
+    )
+    add_test(
+        NAME hms_hodoscope_fadc_translator_tests
+        COMMAND hms_hodoscope_fadc_translator_tests
+    )
+endif()
