@@ -1,2 +1,2 @@
 add_subdirectory(detector_mapping)
-add_subdirectory(HMS_RawHit)
+add_subdirectory(hms_rawhit)

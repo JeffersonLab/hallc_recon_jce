@@ -1,9 +1,8 @@
 #pragma once
 
 #include <cstdint>
-#include <vector>
 
-struct HMSHodoscopeFADCWaveformDigiHit {
+struct HMSHodoscopeFADCPulseTimeDigiHit {
     std::int32_t plane;
     std::int32_t bar;
     std::int32_t signal;
@@ -16,5 +15,8 @@ struct HMSHodoscopeFADCWaveformDigiHit {
     std::uint32_t module_id;
     std::uint32_t channel;
 
-    std::vector<std::uint32_t> waveform;
+    std::uint32_t pulse_number;
+    std::uint32_t measurement_quality_factor;
+    std::uint32_t coarse_pulse_time;
+    std::uint32_t fine_pulse_time;
 };

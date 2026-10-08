@@ -6,11 +6,12 @@ target_include_directories(hms_hodoscope_identity
     PRIVATE ${JANA_INCLUDE_DIRS}
 )
 target_link_libraries(hms_hodoscope_identity
-    PUBLIC jana2_common_extensions::detector_mapping
+    PUBLIC jana2_common_extensions::detector_mapping_api
     PRIVATE ${JANA_LIBRARY}
 )
 
 add_subdirectory(FADC)
+add_subdirectory(FADCScaler)
 
 add_library(hms_hodoscope_translators_init STATIC
     InitHMSHodoscopeTranslators.cc
@@ -21,6 +22,11 @@ target_include_directories(hms_hodoscope_translators_init
 target_link_libraries(hms_hodoscope_translators_init
     PUBLIC
         hms_hodoscope_fadc_translator
+        hms_hodoscope_fadc_scaler_translator
+        hms_hodoscope_fadc_dump_writers
+        hms_hodoscope_fadc_scaler_dump_writers
+    PRIVATE
+        jana2_common_extensions::detector_mapping_api
 )
 
 set(HMS_TRANSLATOR_LIBS
@@ -30,10 +36,12 @@ set(HMS_TRANSLATOR_LIBS
 
 set(HMS_TRANSLATOR_INCLUDE_DIRS
     ${HMS_HODOSCOPE_FADC_TRANSLATOR_INCLUDE_DIRS}
+    ${HMS_HODOSCOPE_FADC_SCALER_TRANSLATOR_INCLUDE_DIRS}
     PARENT_SCOPE
 )
 
 set(HMS_TRANSLATOR_HEADERS
     ${HMS_HODOSCOPE_FADC_TRANSLATOR_PUBLIC_HEADERS}
+    ${HMS_HODOSCOPE_FADC_SCALER_TRANSLATOR_PUBLIC_HEADERS}
     PARENT_SCOPE
 )
