@@ -1,3 +1,20 @@
+# Out-of-source build directory
+/build/
+
+# In-tree installation artifacts
+/bin/
+/config/hallc_detector_mapping/
+/include/
+/lib/
+
+# CMake files from an accidental in-source configure
+/CMakeCache.txt
+/CMakeFiles/
+/Makefile
+/cmake_install.cmake
+
+# Runtime output
+/detector_translation_dump/
+*.csv
 *.root
-build/*
-install/*
+/install/

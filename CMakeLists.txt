@@ -1,6 +1,10 @@
 cmake_minimum_required(VERSION 3.16)
 project(jce_hallc_recon)
 
+if(NOT CMAKE_CONFIGURATION_TYPES AND NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE RelWithDebInfo CACHE STRING "Build type" FORCE)
+endif()
+
 option(BUILD_TESTING "Build Hall C translation and dump tests" OFF)
 include(CTest)
 
